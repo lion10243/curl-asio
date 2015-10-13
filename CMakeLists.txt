@@ -64,7 +64,7 @@ IF(BUILD_EXAMPLES)
 ENDIF()
 
 # Install CMake modules for curl-asio and libcurl
-OPTION(INSTALL_CMAKE_MODULES "Install CMake module files for libcurl and curl-asio" ON)
+OPTION(INSTALL_CMAKE_MODULES "Install CMake module files for libcurl and curl-asio" OFF)
 IF(INSTALL_CMAKE_MODULES)
 	IF(APPLE)
 		IF((IS_SYMLINK "${CMAKE_INSTALL_PREFIX}/share/cmake") OR (IS_SYMLINK "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules"))
