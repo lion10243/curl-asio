@@ -14,7 +14,6 @@
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/preprocessor/stringize.hpp>
-#include <boost/shared_ptr.hpp>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -134,7 +133,7 @@ namespace curl
 		public boost::noncopyable
 	{
 	public:
-		typedef boost::function<void(const boost::system::error_code& err)> handler_type;
+		typedef std::function<void(const boost::system::error_code& err)> handler_type;
 
 		static easy* from_native(native::CURL* native_easy);
 
@@ -148,12 +147,12 @@ namespace curl
 		void perform(boost::system::error_code& ec);
 		void async_perform(handler_type handler);
 		void cancel();
-		void set_source(boost::shared_ptr<std::istream> source);
-		void set_source(boost::shared_ptr<std::istream> source, boost::system::error_code& ec);
-		void set_sink(boost::shared_ptr<std::ostream> sink);
-		void set_sink(boost::shared_ptr<std::ostream> sink, boost::system::error_code& ec);
+		void set_source(std::shared_ptr<std::istream> source);
+		void set_source(std::shared_ptr<std::istream> source, boost::system::error_code& ec);
+		void set_sink(std::shared_ptr<std::ostream> sink);
+		void set_sink(std::shared_ptr<std::ostream> sink, boost::system::error_code& ec);
 
-		typedef boost::function<bool(native::curl_off_t dltotal, native::curl_off_t dlnow, native::curl_off_t ultotal, native::curl_off_t ulnow)> progress_callback_t;
+		typedef std::function<bool(native::curl_off_t dltotal, native::curl_off_t dlnow, native::curl_off_t ultotal, native::curl_off_t ulnow)> progress_callback_t;
 		void unset_progress_callback();
 		void set_progress_callback(progress_callback_t progress_callback);
 
@@ -281,20 +280,20 @@ namespace curl
 		IMPLEMENT_CURL_OPTION(set_post_fields, native::CURLOPT_POSTFIELDS, void*);
 		IMPLEMENT_CURL_OPTION(set_post_field_size, native::CURLOPT_POSTFIELDSIZE, long);
 		IMPLEMENT_CURL_OPTION(set_post_field_size_large, native::CURLOPT_POSTFIELDSIZE_LARGE, native::curl_off_t);
-		void set_http_post(boost::shared_ptr<form> form);
-		void set_http_post(boost::shared_ptr<form> form, boost::system::error_code& ec);
+		void set_http_post(std::shared_ptr<form> form);
+		void set_http_post(std::shared_ptr<form> form, boost::system::error_code& ec);
 		IMPLEMENT_CURL_OPTION_STRING(set_referer, native::CURLOPT_REFERER);
 		IMPLEMENT_CURL_OPTION_STRING(set_user_agent, native::CURLOPT_USERAGENT);
 		void add_header(const std::string& name, const std::string& value);
 		void add_header(const std::string& name, const std::string& value, boost::system::error_code& ec);
 		void add_header(const std::string& header);
 		void add_header(const std::string& header, boost::system::error_code& ec);
-		void set_headers(boost::shared_ptr<string_list> headers);
-		void set_headers(boost::shared_ptr<string_list> headers, boost::system::error_code& ec);
+		void set_headers(std::shared_ptr<string_list> headers);
+		void set_headers(std::shared_ptr<string_list> headers, boost::system::error_code& ec);
 		void add_http200_alias(const std::string& http200_alias);
 		void add_http200_alias(const std::string& http200_alias, boost::system::error_code& ec);
-		void set_http200_aliases(boost::shared_ptr<string_list> http200_aliases);
-		void set_http200_aliases(boost::shared_ptr<string_list> http200_aliases, boost::system::error_code& ec);
+		void set_http200_aliases(std::shared_ptr<string_list> http200_aliases);
+		void set_http200_aliases(std::shared_ptr<string_list> http200_aliases, boost::system::error_code& ec);
 		IMPLEMENT_CURL_OPTION_STRING(set_cookie, native::CURLOPT_COOKIE);
 		IMPLEMENT_CURL_OPTION_STRING(set_cookie_file, native::CURLOPT_COOKIEFILE);
 		IMPLEMENT_CURL_OPTION_STRING(set_cookie_jar, native::CURLOPT_COOKIEJAR);
@@ -312,8 +311,8 @@ namespace curl
 		IMPLEMENT_CURL_OPTION_STRING(set_mail_from, native::CURLOPT_MAIL_FROM);
 		void add_mail_rcpt(const std::string& mail_rcpt);
 		void add_mail_rcpt(const std::string& mail_rcpt, boost::system::error_code& ec);
-		void set_mail_rcpts(boost::shared_ptr<string_list> mail_rcpts);
-		void set_mail_rcpts(boost::shared_ptr<string_list> mail_rcpts, boost::system::error_code& ec);
+		void set_mail_rcpts(std::shared_ptr<string_list> mail_rcpts);
+		void set_mail_rcpts(std::shared_ptr<string_list> mail_rcpts, boost::system::error_code& ec);
 #if LIBCURL_VERSION_NUM >= 0x072500
 		IMPLEMENT_CURL_OPTION_STRING(set_mail_auth, native::CURLOPT_MAIL_AUTH);
 #endif
@@ -327,12 +326,12 @@ namespace curl
 		IMPLEMENT_CURL_OPTION_STRING(set_ftp_port, native::CURLOPT_FTPPORT);
 		void add_quote(const std::string& quote);
 		void add_quote(const std::string& quote, boost::system::error_code& ec);
-		void set_quotes(boost::shared_ptr<string_list> quotes);
-		void set_quotes(boost::shared_ptr<string_list> quotes, boost::system::error_code& ec);
+		void set_quotes(std::shared_ptr<string_list> quotes);
+		void set_quotes(std::shared_ptr<string_list> quotes, boost::system::error_code& ec);
 		/*void add_post_quote(const std::string& pre_quote);
-		void set_post_quotes(boost::shared_ptr<string_list> pre_quotes);
+		void set_post_quotes(std::shared_ptr<string_list> pre_quotes);
 		void add_pre_quote(const std::string& pre_quote);
-		void set_pre_quotes(boost::shared_ptr<string_list> pre_quotes);*/
+		void set_pre_quotes(std::shared_ptr<string_list> pre_quotes);*/
 		IMPLEMENT_CURL_OPTION_BOOLEAN(set_dir_list_only, native::CURLOPT_DIRLISTONLY);
 		IMPLEMENT_CURL_OPTION_BOOLEAN(set_append, native::CURLOPT_APPEND);
 		IMPLEMENT_CURL_OPTION_BOOLEAN(set_ftp_use_eprt, native::CURLOPT_FTP_USE_EPRT);
@@ -413,8 +412,8 @@ namespace curl
 		IMPLEMENT_CURL_OPTION_ENUM(set_use_ssl, native::CURLOPT_USE_SSL, use_ssl_t, long);
 		void add_resolve(const std::string& resolved_host);
 		void add_resolve(const std::string& resolved_host, boost::system::error_code& ec);
-		void set_resolves(boost::shared_ptr<string_list> resolved_hosts);
-		void set_resolves(boost::shared_ptr<string_list> resolved_hosts, boost::system::error_code& ec);
+		void set_resolves(std::shared_ptr<string_list> resolved_hosts);
+		void set_resolves(std::shared_ptr<string_list> resolved_hosts, boost::system::error_code& ec);
 #if LIBCURL_VERSION_NUM >= 0x072400
 		IMPLEMENT_CURL_OPTION_STRING(set_dns_servers, native::CURLOPT_DNS_SERVERS);
 		IMPLEMENT_CURL_OPTION(set_accept_timeout_ms, native::CURLOPT_ACCEPTTIMEOUT_MS, long);
@@ -470,8 +469,8 @@ namespace curl
 		// other options
 
 		IMPLEMENT_CURL_OPTION(set_private, native::CURLOPT_PRIVATE, void*);
-		void set_share(boost::shared_ptr<share> share);
-		void set_share(boost::shared_ptr<share> share, boost::system::error_code& ec);
+		void set_share(std::shared_ptr<share> share);
+		void set_share(std::shared_ptr<share> share, boost::system::error_code& ec);
 		IMPLEMENT_CURL_OPTION(set_new_file_perms, native::CURLOPT_NEW_FILE_PERMS, long);
 		IMPLEMENT_CURL_OPTION(set_new_directory_perms, native::CURLOPT_NEW_DIRECTORY_PERMS, long);
 
@@ -481,8 +480,8 @@ namespace curl
 		void add_telnet_option(const std::string& option, const std::string& value, boost::system::error_code& ec);
 		void add_telnet_option(const std::string& telnet_option);
 		void add_telnet_option(const std::string& telnet_option, boost::system::error_code& ec);
-		void set_telnet_options(boost::shared_ptr<string_list> telnet_options);
-		void set_telnet_options(boost::shared_ptr<string_list> telnet_options, boost::system::error_code& ec);
+		void set_telnet_options(std::shared_ptr<string_list> telnet_options);
+		void set_telnet_options(std::shared_ptr<string_list> telnet_options, boost::system::error_code& ec);
 
 		// getters
 
@@ -558,17 +557,17 @@ namespace curl
 		multi* multi_;
 		bool multi_registered_;
 		handler_type handler_;
-		boost::shared_ptr<std::istream> source_;
-		boost::shared_ptr<std::ostream> sink_;
+		std::shared_ptr<std::istream> source_;
+		std::shared_ptr<std::ostream> sink_;
 		std::string post_fields_;
-		boost::shared_ptr<form> form_;
-		boost::shared_ptr<string_list> headers_;
-		boost::shared_ptr<string_list> http200_aliases_;
-		boost::shared_ptr<string_list> mail_rcpts_;
-		boost::shared_ptr<string_list> quotes_;
-		boost::shared_ptr<string_list> resolved_hosts_;
-		boost::shared_ptr<share> share_;
-		boost::shared_ptr<string_list> telnet_options_;
+		std::shared_ptr<form> form_;
+		std::shared_ptr<string_list> headers_;
+		std::shared_ptr<string_list> http200_aliases_;
+		std::shared_ptr<string_list> mail_rcpts_;
+		std::shared_ptr<string_list> quotes_;
+		std::shared_ptr<string_list> resolved_hosts_;
+		std::shared_ptr<share> share_;
+		std::shared_ptr<string_list> telnet_options_;
 		progress_callback_t progress_callback_;
 	};
 }

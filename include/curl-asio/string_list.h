@@ -9,7 +9,6 @@
 #pragma once
 
 #include "config.h"
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/noncopyable.hpp>
 #include <string>
 #include "initialization.h"
@@ -18,7 +17,7 @@
 namespace curl
 {
 	class CURLASIO_API string_list:
-		public boost::enable_shared_from_this<string_list>,
+		public std::enable_shared_from_this<string_list>,
 		public boost::noncopyable
 	{
 	public:
