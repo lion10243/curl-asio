@@ -486,7 +486,7 @@ void easy::handle_completion(const boost::system::error_code& err)
 
 	multi_registered_ = false;
 	io_service_.post(boost::bind(handler_, err));
-	handler_=0;
+	//handler_=0;
 }
 
 void easy::init()
