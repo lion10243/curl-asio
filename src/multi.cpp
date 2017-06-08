@@ -68,7 +68,11 @@ void multi::remove(easy* easy_handle)
 
 void multi::use_pipelining (bool value)
 {
+#if LIBCURL_VERSION_NUM >= 0x074300
 	const long nativeValue = (value ? CURLPIPE_HTTP1 : CURLPIPE_NOTHING);
+#else
+	const bool nativeValue = value?1:0;
+#endif
 	boost::system::error_code ec(native::curl_multi_setopt(handle_, native::CURLMOPT_PIPELINING, nativeValue));
 	boost::asio::detail::throw_error(ec, "use_pipelining");
 }
