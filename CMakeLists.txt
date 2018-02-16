@@ -1,80 +1,75 @@
-# curl-asio
+# curlasio
 # Seamlessly integrate libcurl with Boost.Asio
 #
-# Copyright (c) 2013 Oliver Kuckertz <oliver.kuckertz@mologie.de>
+# copyright (c) 2013 Oliver Kuckertz <oliver.kuckertz@mologie.de>
 # See COPYING for license information.
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.2 FATAL_ERROR)
-PROJECT(curl-asio)
+include( "cmake/HunterGate.cmake" )
 
-# Adjust the module path
-LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+HunterGate(
+    URL "https://github.com/ruslo/hunter/archive/v0.20.9.tar.gz"
+    SHA1 "8f7cf6d719d05c49224a4ebeba90c6bb90b90f4a"
+)
 
-# Build options
-OPTION(BUILD_STATIC "Build the static library" ON)
-OPTION(BUILD_SHARED "Build the shared library" OFF)
-OPTION(BUILD_EXAMPLES "Build the examples" ON)
+project(curlasio VERSION 0.9 LANGUAGES CXX)
 
-IF(NOT MSVC)
-	OPTION(ENABLE_CPP11 "Enable features and examples which require C++11" ON)
-	IF(ENABLE_CPP11)
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-	ENDIF()
-ENDIF()
+include(GNUInstallDirs)
 
-IF(NOT BUILD_STATIC AND NOT BUILD_SHARED)
-	MESSAGE(FATAL_ERROR "Neither BUILD_STATIC nor BUILD_SHARED is set")
-ENDIF()
+hunter_add_package(CURL)
+find_package(CURL CONFIG REQUIRED)
 
-SET(CURLASIO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/include")
+hunter_add_package(Boost COMPONENTS system)
+find_package(Boost CONFIG REQUIRED system)
 
-# Prefer the shared interface over the static for building examples
-IF(BUILD_SHARED)
-	SET(EXAMPLE_LINK_TARGET curlasio-shared)
-ELSE()
-	SET(EXAMPLE_LINK_TARGET curlasio-static)
-	SET(EXAMPLE_PROJECT_DEFINITIONS -DCURLASIO_STATIC)
-ENDIF()
+add_library(curlasio
+	src/error_code.cpp
+	src/form.cpp
+	src/share.cpp
+	src/string_list.cpp
+	src/easy.cpp
+	src/initialization.cpp
+	src/multi.cpp
+)
 
-IF(MSVC)
-	# Select Windows version
-	OPTION(ENABLE_VISTA_FEATURES "Enable Vista features. This disables some workarounds, but sacrifices Windows XP compatibility." OFF)
-	IF(ENABLE_VISTA_FEATURES)
-		SET(TARGET_WINDOWS_VERSION 0x0600)
-	ELSE()
-		SET(TARGET_WINDOWS_VERSION 0x0501)
-	ENDIF()
-	ADD_DEFINITIONS(-D_WIN32_WINNT=${TARGET_WINDOWS_VERSION})
-	
-	# Disable using __declspec(dllimport) when linking statically
-	OPTION(CURL_IS_STATIC "Check if libcurl is a static library" OFF)
-	IF(CURL_IS_STATIC)
-		ADD_DEFINITIONS(-DCURL_STATICLIB)
-	ENDIF()
-ENDIF()
+target_include_directories(curlasio 
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
+)
 
-# Find dependencies
-FIND_PACKAGE(CURLASIO-CURL REQUIRED)
-FIND_PACKAGE(Boost REQUIRED COMPONENTS chrono date_time system thread)
+target_compile_features(curlasio
+    PUBLIC 
+        cxx_std_14
+)
 
-# Move along
-ADD_SUBDIRECTORY(src)
-IF(BUILD_EXAMPLES)
-	ADD_SUBDIRECTORY(examples)
-ENDIF()
+target_link_libraries(curlasio
+	PUBLIC
+		CURL::libcurl
+		Boost::boost
+		Boost::system
+)
 
-# Install CMake modules for curl-asio and libcurl
-OPTION(INSTALL_CMAKE_MODULES "Install CMake module files for libcurl and curl-asio" OFF)
-IF(INSTALL_CMAKE_MODULES)
-	IF(APPLE)
-		IF((IS_SYMLINK "${CMAKE_INSTALL_PREFIX}/share/cmake") OR (IS_SYMLINK "${CMAKE_INSTALL_PREFIX}/share/cmake/Modules"))
-			MESSAGE(FATAL_ERROR "The destination path `${CMAKE_INSTALL_PREFIX}/share/cmake' is a symlink. "
-				"If you are using Homebrew, run the following set of commands prior to installing this library:\n"
-				"    brew unlink cmake\n"
-				"    mkdir -p '${CMAKE_INSTALL_PREFIX}/share/cmake/Modules'\n"
-				"    brew link cmake\n"
-				"Without these changes, updating CMake through Homebrew would break the installation. Alternatively, choose a different CMAKE_INSTALL_PREFIX.")
-		ENDIF()
-	ENDIF()
-	INSTALL(DIRECTORY cmake/ DESTINATION share/cmake/Modules)
-ENDIF()
+install(TARGETS curlasio EXPORT curlasioConfig
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(EXPORT curlasioConfig DESTINATION cmake)
+export(TARGETS curlasio FILE curlasioConfig.cmake)
+
+option(BUILD_EXAMPLES "build examples" OFF)
+
+if (BUILD_EXAMPLES)
+	add_executable(asynchronous examples/asynchronous.cpp)
+	target_link_libraries(asynchronous 
+		PRIVATE 
+			curlasio
+	)
+
+	add_executable(synchronous examples/synchronous.cpp)
+	target_link_libraries(synchronous 
+		PRIVATE 
+			curlasio
+	)
+endif()

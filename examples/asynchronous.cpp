@@ -7,14 +7,6 @@
 
 std::set<std::unique_ptr<curl::easy>> active_downloads;
 
-namespace std {
-template<typename T, typename ...Args>
-std::unique_ptr<T> make_unique( Args&& ...args )
-{
-    return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
-}
-}
-
 void handle_download_completed(const boost::system::error_code &err, std::string url, curl::easy* easy)
 {
 	auto it = std::find_if(active_downloads.begin(),active_downloads.end(),[easy](const std::unique_ptr<curl::easy>& p){return p.get()==easy;});
